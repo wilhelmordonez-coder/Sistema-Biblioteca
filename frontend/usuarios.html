@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuarios | Biblioteca</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header></header>
+  <main>
+    <section class="intro">
+      <h1>Usuarios de la <mark>biblioteca</mark></h1>
+      <p>Registre a los lectores de la biblioteca y consulte sus datos de contacto.</p>
+    </section>
+    <div class="modulo">
+      <section class="panel">
+        <h2>Nuevo usuario</h2>
+        <form id="form-usuario" novalidate>
+          <label>Nombre completo<input name="nombre" maxlength="100"><small></small></label>
+          <label>Correo electrónico<input name="correo" type="email" maxlength="100" placeholder="nombre@miumg.edu.gt"><small></small></label>
+          <label>Teléfono<input name="telefono" type="tel" maxlength="8" placeholder="8 dígitos"><small></small></label>
+          <div class="botones"><button type="submit">Registrar usuario</button></div>
+        </form>
+      </section>
+      <section class="panel">
+        <h2>Usuarios registrados</h2>
+        <div class="filtros">
+          <input id="buscar" type="search" placeholder="Buscar por nombre o correo" aria-label="Buscar usuarios">
+        </div>
+        <div class="tabla">
+          <table id="tabla-usuarios">
+            <thead><tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Teléfono</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+  <footer></footer>
+  <script src="js/config.js"></script>
+  <script src="js/mock.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/usuarios.js"></script>
+</body>
+</html>
