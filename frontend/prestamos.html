@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Préstamos | Biblioteca</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header></header>
+  <main>
+    <section class="intro">
+      <h1>Control de <mark>préstamos</mark></h1>
+      <p>Preste material disponible, registre su devolución y consulte el historial completo.</p>
+    </section>
+    <div class="modulo">
+      <section class="panel">
+        <h2>Nuevo préstamo</h2>
+        <form id="form-prestamo" novalidate>
+          <label>Usuario<select name="id_usuario"></select><small></small></label>
+          <label>Material<select name="id_libro"></select><small></small></label>
+          <label>Fecha de devolución<input name="fecha_devolucion" type="date"><small></small></label>
+          <div class="botones"><button type="submit">Registrar préstamo</button></div>
+        </form>
+      </section>
+      <section class="panel">
+        <h2>Historial de préstamos</h2>
+        <div class="filtros">
+          <input id="buscar" type="search" placeholder="Buscar por material o usuario" aria-label="Buscar préstamos">
+          <select id="filtro" aria-label="Filtrar por estado">
+            <option value="">Todos</option>
+            <option>Activo</option>
+            <option>Vencido</option>
+            <option>Devuelto</option>
+          </select>
+        </div>
+        <div class="tabla">
+          <table id="tabla-prestamos">
+            <thead><tr><th>ID</th><th>Material</th><th>Usuario</th><th>Prestado</th><th>Devolver el</th><th>Devuelto</th><th>Estado</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+  <footer></footer>
+  <script src="js/config.js"></script>
+  <script src="js/mock.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/prestamos.js"></script>
+</body>
+</html>
