@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo | Biblioteca</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header></header>
+  <main>
+    <section class="intro">
+      <h1>Catálogo de <mark>material</mark></h1>
+      <p>Registre libros, revistas y tesis, actualice sus datos y consulte qué material está disponible para préstamo.</p>
+    </section>
+    <div class="modulo">
+      <section class="panel">
+        <h2 id="titulo-form">Nuevo material</h2>
+        <form id="form-libro" novalidate>
+          <input type="hidden" name="id_libro">
+          <label>Tipo de material<select name="tipo"><option>Libro</option><option>Revista</option><option>Tesis</option></select><small></small></label>
+          <label>Título<input name="titulo" maxlength="150"><small></small></label>
+          <label>Autor<input name="autor" maxlength="100"><small></small></label>
+          <label>ISBN<input name="codigo" maxlength="17"><small></small></label>
+          <label>Año de publicación<input name="anio_publicacion" type="number" min="1450"><small></small></label>
+          <label>Valor de reposición (Q)<input name="precio" type="number" min="0" step="0.01" placeholder="Opcional, por ejemplo 150.00"><small></small></label>
+          <label>URL de la portada<input name="portada_url" type="url" maxlength="500" placeholder="Opcional, https://..."><small></small></label>
+          <img id="vista-portada" class="vista-portada" alt="Vista previa de la portada" hidden>
+          <div class="botones">
+            <button type="submit">Guardar material</button>
+            <button type="button" class="btn-sec" id="cancelar" hidden>Cancelar</button>
+          </div>
+        </form>
+      </section>
+      <section class="panel">
+        <div class="cabecera">
+          <h2>Catálogo</h2>
+          <div class="vista" id="vista" aria-label="Vista"><button value="tabla">Tabla</button><button value="tarjetas">Tarjetas</button></div>
+        </div>
+        <div class="filtros">
+          <input id="buscar" type="search" placeholder="Buscar por título, autor o código" aria-label="Buscar material">
+          <select id="tipo-filtro" aria-label="Filtrar por sección">
+            <option value="">Todo el material</option>
+            <option value="Libro">Libros</option>
+            <option value="Revista">Revistas</option>
+            <option value="Tesis">Tesis</option>
+          </select>
+          <select id="filtro" aria-label="Filtrar por disponibilidad">
+            <option value="">Todos</option>
+            <option value="1">Disponibles</option>
+            <option value="0">Prestados</option>
+          </select>
+        </div>
+        <p class="conteo" id="conteo"></p>
+        <div id="resultados"></div>
+      </section>
+    </div>
+  </main>
+  <footer></footer>
+  <script src="js/config.js"></script>
+  <script src="js/mock.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/libros.js"></script>
+</body>
+</html>
