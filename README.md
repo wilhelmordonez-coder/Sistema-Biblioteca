@@ -6,7 +6,7 @@ Proyecto final del curso **Desarrollo Web**, Ingeniería en Sistemas, Universida
 
 | Integrante | Responsabilidad principal |
 |---|---|
-| Cobar | Base de datos y Backend/API (MySQL, Express, CRUD, códigos HTTP) |
+| José Pablo Cano Cóbar | Base de datos y Backend/API (MySQL, Express, CRUD, códigos HTTP) |
 | Wilhelm Ordóñez | Frontend e integración (HTML, CSS, JavaScript, fetch, validaciones) y QA con Postman |
 
 ## Descripción
@@ -67,7 +67,7 @@ MySQL  →  persistencia de datos
 1. El bibliotecario completa el formulario de préstamo y presiona "Registrar préstamo".
 2. El frontend valida los datos y llama a `api.prestamos.crear()`, que ejecuta `fetch('/api/prestamos', { method: 'POST', body })`.
 3. Express recibe el JSON en `req.body`, valida los datos y verifica que el material esté disponible.
-4. Si está disponible, ejecuta un `INSERT` en `prestamos` y un `UPDATE` en `libros`, y responde `201 Created`.
+4. Si está disponible, ejecuta un `INSERT` en `prestamos` y un `UPDATE` en `libros` dentro de una **transacción** (o se guardan los dos cambios o ninguno), y responde `201 Created`.
 5. Si ya está prestado, responde `409 Conflict` con un mensaje de error.
 6. El frontend muestra el resultado y recarga la tabla con los datos actualizados.
 
@@ -86,9 +86,19 @@ MySQL  →  persistencia de datos
 │       ├── mock.js       API simulada para trabajar sin backend
 │       ├── ui.js         Utilidades: tablas, validación, mensajes
 │       └── inicio.js, libros.js, usuarios.js, prestamos.js
-├── backend/              API REST con Express
+├── backend/
+│   ├── .env.example      Variables de entorno de ejemplo
+│   ├── package.json
+│   └── src/
+│       ├── server.js     Punto de entrada (carga .env y levanta Express)
+│       ├── app.js        Middlewares, frontend estático y rutas
+│       ├── config/db.js  Pool de conexiones a MySQL y transacciones
+│       ├── routes/       Rutas de la API
+│       ├── controllers/  Lógica y SQL de libros, usuarios y préstamos
+│       ├── middlewares/  Manejo centralizado de errores
+│       └── utils/        Validaciones del backend
+├── pruebas/              Colección de Postman y capturas de evidencia
 ├── database.sql          Script de creación de la base de datos
-├── .env.example          Variables de entorno de ejemplo
 └── README.md
 ```
 
@@ -104,19 +114,21 @@ MySQL  →  persistencia de datos
 
 | Método | Ruta | Descripción | Respuesta correcta | Errores |
 |---|---|---|---|---|
+| GET | `/api/health` | Estado de la API y de MySQL | 200 | 503 |
 | GET | `/api/libros` | Listar material | 200 | 500 |
-| GET | `/api/libros/:id` | Obtener un material | 200 | 404 |
-| POST | `/api/libros` | Registrar material | 201 | 400 |
-| PUT | `/api/libros/:id` | Actualizar material | 200 | 400, 404 |
-| DELETE | `/api/libros/:id` | Eliminar material | 200 | 404, 409 |
+| GET | `/api/libros/:id` | Obtener un material | 200 | 400, 404 |
+| POST | `/api/libros` | Registrar material | 201 | 400, 409 (código repetido) |
+| PUT | `/api/libros/:id` | Actualizar material | 200 | 400, 404, 409 |
+| DELETE | `/api/libros/:id` | Eliminar material | 200 | 404, 409 (tiene préstamos) |
 | GET | `/api/usuarios` | Listar usuarios | 200 | 500 |
-| GET | `/api/usuarios/:id` | Obtener un usuario | 200 | 404 |
-| POST | `/api/usuarios` | Registrar usuario | 201 | 400 |
+| GET | `/api/usuarios/:id` | Obtener un usuario | 200 | 400, 404 |
+| POST | `/api/usuarios` | Registrar usuario | 201 | 400, 409 (correo repetido) |
 | GET | `/api/prestamos` | Historial con título, tipo y nombre del usuario | 200 | 500 |
-| POST | `/api/prestamos` | Registrar préstamo | 201 | 400, 404, 409 |
-| PUT | `/api/prestamos/:id/devolucion` | Registrar devolución | 200 | 404, 409 |
+| GET | `/api/prestamos/:id` | Obtener un préstamo | 200 | 400, 404 |
+| POST | `/api/prestamos` | Registrar préstamo | 201 | 400, 404, 409 (ya prestado) |
+| PUT | `/api/prestamos/:id/devolucion` | Registrar devolución | 200 | 404, 409 (ya devuelto) |
 
-Todos los errores se devuelven como JSON con la forma `{ "error": "mensaje" }`.
+Todos los errores se devuelven como JSON con la forma `{ "error": "mensaje" }`. Si MySQL está apagado, cualquier endpoint responde `503 Service Unavailable` y el frontend muestra el mensaje.
 
 ## Validaciones
 
@@ -136,6 +148,7 @@ Todos los errores se devuelven como JSON con la forma `{ "error": "mensaje" }`.
 
 - Validación de entradas en el frontend y en el backend.
 - Consultas SQL parametrizadas (`?` en `mysql2`) para prevenir inyección SQL.
+- La regla de negocio también está protegida en MySQL: un índice único sobre los préstamos activos impide prestar dos veces el mismo material, aunque se intente fuera de la aplicación.
 - Credenciales de la base de datos en variables de entorno (`.env`), fuera del código fuente y excluidas del repositorio.
 - Los datos se escapan antes de insertarse en el HTML para prevenir XSS.
 
@@ -152,7 +165,7 @@ Todos los errores se devuelven como JSON con la forma `{ "error": "mensaje" }`.
    ```bash
    mysql -u root -p < database.sql
    ```
-3. Configurar las variables de entorno: copiar `.env.example` como `.env` y completar los datos de conexión.
+3. Configurar las variables de entorno: dentro de `backend/`, copiar `.env.example` como `.env` y completar el usuario y la contraseña de MySQL.
 4. Instalar dependencias e iniciar la API:
    ```bash
    cd backend
@@ -163,8 +176,12 @@ Todos los errores se devuelven como JSON con la forma `{ "error": "mensaje" }`.
 
 ### Modo demostración
 
-El frontend incluye una API simulada (`frontend/js/mock.js`) para probar la interfaz sin backend. Se activa con `USE_MOCK = true` en `frontend/js/config.js`. Para la entrega debe quedar en `false`, de modo que todos los datos vengan de MySQL.
+El frontend incluye una API simulada (`frontend/js/mock.js`) para probar la interfaz sin backend. Para activarla hay que poner `USE_MOCK = true` en `frontend/js/config.js` y volver a incluir `<script src="js/mock.js"></script>` en las páginas. En la versión entregada está desactivada: todos los datos vienen de MySQL.
 
 ## Pruebas
 
-Las pruebas de la API se realizaron con Postman. Cubren cada endpoint en los casos correctos y en los de error: campos faltantes, registros inexistentes, préstamo de material ya prestado y devolución duplicada. Las capturas de evidencia están en la carpeta `pruebas/`.
+Las pruebas de la API se realizaron con Postman. Cubren cada endpoint en los casos correctos y en los de error: campos faltantes, datos inválidos, registros inexistentes, códigos duplicados, préstamo de material ya prestado y devolución duplicada.
+
+- Colección: `pruebas/Biblioteca.postman_collection.json` (36 peticiones; cada una verifica su código HTTP esperado).
+- Para ejecutarla: recrear la base con `database.sql`, iniciar la API, importar la colección en Postman y usar **Run collection** en orden.
+- Las capturas de evidencia están en la carpeta `pruebas/`.
